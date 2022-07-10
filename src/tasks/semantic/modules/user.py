@@ -30,9 +30,11 @@ class User():
     self.modeldir = modeldir
 
     # get the data
-    parserModule = imp.load_source("parserModule",
-                                   booger.TRAIN_PATH + '/tasks/semantic/dataset/' +
-                                   self.DATA["name"] + '/parser.py')
+    parserModule = imp.load_source(
+        "parserModule",
+        ((f'{booger.TRAIN_PATH}/tasks/semantic/dataset/' + self.DATA["name"]) +
+         '/parser.py'),
+    )
     self.parser = parserModule.Parser(root=self.datadir,
                                       train_sequences=self.DATA["split"]["train"],
                                       valid_sequences=self.DATA["split"]["valid"],
@@ -97,7 +99,7 @@ class User():
     with torch.no_grad():
       end = time.time()
 
-      for i, (proj_in, proj_mask, _, _, path_seq, path_name, p_x, p_y, proj_range, unproj_range, _, _, _, _, npoints) in enumerate(loader):
+      for proj_in, proj_mask, _, _, path_seq, path_name, p_x, p_y, proj_range, unproj_range, _, _, _, _, npoints in loader:
         # first cut to rela size (batch size one allows it)
         p_x = p_x[0, :npoints]
         p_y = p_y[0, :npoints]
@@ -119,23 +121,14 @@ class User():
         proj_output, _, _, _, _ = self.model(proj_in, proj_mask)
         proj_argmax = proj_output[0].argmax(dim=0)
 
-        if self.post:
-          # knn postproc
-          unproj_argmax = self.post(proj_range,
-                                    unproj_range,
-                                    proj_argmax,
-                                    p_x,
-                                    p_y)
-        else:
-          # put in original pointcloud using indexes
-          unproj_argmax = proj_argmax[p_y, p_x]
-
+        unproj_argmax = (self.post(proj_range, unproj_range, proj_argmax, p_x,
+                                   p_y) if self.post else proj_argmax[p_y, p_x])
         if torch.cuda.is_available():
          torch.cuda.synchronize()
 
         print("Infered seq", path_seq, "scan", path_name,
               "in", time.time() - end, "sec")
-        
+
         end = time.time()
 
         # save scan

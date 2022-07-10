@@ -19,9 +19,7 @@ class warmupLR(toptim._LRScheduler):
     self.decay = decay
 
     # cap to one
-    if self.warmup_steps < 1:
-      self.warmup_steps = 1
-
+    self.warmup_steps = max(self.warmup_steps, 1)
     # cyclic lr
     self.initial_scheduler = toptim.CyclicLR(self.optimizer,
                                              base_lr=0,
@@ -38,13 +36,13 @@ class warmupLR(toptim._LRScheduler):
     super().__init__(optimizer)
 
   def get_lr(self):
-    return [self.lr * (self.decay ** self.last_epoch) for lr in self.base_lrs]
+    return [self.lr * (self.decay ** self.last_epoch) for _ in self.base_lrs]
 
   def step(self, epoch=None):
-    if self.finished or self.initial_scheduler.last_epoch >= self.warmup_steps:
-      if not self.finished:
-        self.base_lrs = [self.lr for lr in self.base_lrs]
-        self.finished = True
-      return super(warmupLR, self).step(epoch)
-    else:
+    if (not self.finished
+        and self.initial_scheduler.last_epoch < self.warmup_steps):
       return self.initial_scheduler.step(epoch)
+    if not self.finished:
+      self.base_lrs = [self.lr for _ in self.base_lrs]
+      self.finished = True
+    return super(warmupLR, self).step(epoch)

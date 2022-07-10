@@ -65,7 +65,7 @@ class Backbone(nn.Module):
     self.bn_d = params["bn_d"]
     self.OS = params["OS"]
     self.layers = params["extra"]["layers"]
-    print("Using squeezesegv3" + str(self.layers) + " Backbone")
+    print(f"Using squeezesegv3{str(self.layers)} Backbone")
     self.input_depth = 0
     self.input_idxs = []
     if self.use_range:
@@ -127,20 +127,26 @@ class Backbone(nn.Module):
     self.last_channels = 256
 
   def _make_enc_layer(self, block, planes, blocks, stride, DS, bn_d=0.1):
-    layers = []
-
     inplanes = planes[0]
-    for i in range(0, blocks):
-      layers.append(("residual_{}".format(i),
-                     block(inplanes, planes,bn_d)))
+    layers = [(f"residual_{i}", block(inplanes, planes, bn_d))
+              for i in range(blocks)]
     if DS==True:
-        layers.append(("conv", nn.Conv2d(planes[0], planes[1],
-                                     kernel_size=3,
-                                     stride=[1, stride], dilation=1,
-                                     padding=1, bias=False)))
-        layers.append(("bn", nn.BatchNorm2d(planes[1], momentum=bn_d)))
-        layers.append(("relu", nn.LeakyReLU(0.1)))
-    
+      layers.extend((
+          (
+              "conv",
+              nn.Conv2d(
+                  planes[0],
+                  planes[1],
+                  kernel_size=3,
+                  stride=[1, stride],
+                  dilation=1,
+                  padding=1,
+                  bias=False,
+              ),
+          ),
+          ("bn", nn.BatchNorm2d(planes[1], momentum=bn_d)),
+          ("relu", nn.LeakyReLU(0.1)),
+      ))
     return nn.Sequential(OrderedDict(layers))
 
   def run_layer(self, xyz, feature, layer, skips, os, flag=True):

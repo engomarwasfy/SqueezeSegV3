@@ -14,7 +14,7 @@ class oneHot(nn.Module):
 
   def onehot1dspatial(self, x):
     # we only do tensors that 1d tensors that are batched or not, so check
-    assert(len(x.shape) == 1 or len(x.shape) == 2)
+    assert len(x.shape) in {1, 2}
     # if not batched, batch
     remove_dim = False  # flag to unbatch
     if len(x.shape) == 1:
@@ -39,7 +39,7 @@ class oneHot(nn.Module):
 
   def onehot2dspatial(self, x):
     # we only do tensors that 2d tensors that are batched or not, so check
-    assert(len(x.shape) == 2 or len(x.shape) == 3)
+    assert len(x.shape) in {2, 3}
     # if not batched, batch
     remove_dim = False  # flag to unbatch
     if len(x.shape) == 2:

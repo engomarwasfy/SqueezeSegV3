@@ -99,12 +99,11 @@ class Decoder(nn.Module):
     else:
       layers.append(("conv", nn.Conv2d(planes[0], planes[1],
                                        kernel_size=3, padding=1)))
-    layers.append(("bn", nn.BatchNorm2d(planes[1], momentum=bn_d)))
-    layers.append(("relu", nn.LeakyReLU(0.1)))
-
-    #  blocks
-    layers.append(("residual", block(planes[1], planes, bn_d)))
-
+    layers.extend((
+        ("bn", nn.BatchNorm2d(planes[1], momentum=bn_d)),
+        ("relu", nn.LeakyReLU(0.1)),
+        ("residual", block(planes[1], planes, bn_d)),
+    ))
     return nn.Sequential(OrderedDict(layers))
 
   def run_layer(self, x, layer, skips, os):

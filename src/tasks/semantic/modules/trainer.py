@@ -36,7 +36,7 @@ class Trainer():
     self.path = path
 
     # put logger where it belongs
-    self.tb_logger = Logger(self.log + "/tb")
+    self.tb_logger = Logger(f"{self.log}/tb")
     self.info = {"train_update": 0,
                  "train_loss": 0,
                  "train_acc": 0,
@@ -50,9 +50,11 @@ class Trainer():
                  "post_lr": 0}
 
     # get the data
-    parserModule = imp.load_source("parserModule",
-                                   booger.TRAIN_PATH + '/tasks/semantic/dataset/' +
-                                   self.DATA["name"] + '/parser.py')
+    parserModule = imp.load_source(
+        "parserModule",
+        ((f'{booger.TRAIN_PATH}/tasks/semantic/dataset/' + self.DATA["name"]) +
+         '/parser.py'),
+    )
     self.parser = parserModule.Parser(root=self.datadir,
                                       train_sequences=self.DATA["split"]["train"],
                                       valid_sequences=self.DATA["split"]["valid"],
@@ -196,15 +198,14 @@ class Trainer():
         tag = tag.replace('.', '/')
         logger.histo_summary(tag, value.data.cpu().numpy(), epoch)
         if value.grad is not None:
-          logger.histo_summary(
-              tag + '/grad', value.grad.data.cpu().numpy(), epoch)
+          logger.histo_summary(f'{tag}/grad', value.grad.data.cpu().numpy(), epoch)
 
     if img_summary and len(imgs) > 0:
       directory = os.path.join(logdir, "predictions")
       if not os.path.isdir(directory):
         os.makedirs(directory)
       for i, img in enumerate(imgs):
-        name = os.path.join(directory, str(i) + ".png")
+        name = os.path.join(directory, f"{str(i)}.png")
         cv2.imwrite(name, img)
 
   def train(self):
