@@ -48,8 +48,8 @@ if __name__ == '__main__':
 
   # open arch config file
   try:
-    print("Opening arch config file from %s" % FLAGS.model)
-    ARCH = yaml.safe_load(open(FLAGS.model + "/arch_cfg.yaml", 'r'))
+    print(f"Opening arch config file from {FLAGS.model}")
+    ARCH = yaml.safe_load(open(f"{FLAGS.model}/arch_cfg.yaml", 'r'))
   except Exception as e:
     print(e)
     print("Error opening arch yaml file.")
@@ -57,8 +57,8 @@ if __name__ == '__main__':
 
   # open data config file
   try:
-    print("Opening data config file from %s" % FLAGS.model)
-    DATA = yaml.safe_load(open(FLAGS.model + "/data_cfg.yaml", 'r'))
+    print(f"Opening data config file from {FLAGS.model}")
+    DATA = yaml.safe_load(open(f"{FLAGS.model}/data_cfg.yaml", 'r'))
   except Exception as e:
     print(e)
     print("Error opening data yaml file.")
@@ -74,8 +74,8 @@ if __name__ == '__main__':
     for seq in DATA["split"]["sample"]:
       seq = '{0:02d}'.format(int(seq))
       print("sample_list",seq)
-      os.makedirs(os.path.join(FLAGS.log,"sequences", str(seq)))
-      os.makedirs(os.path.join(FLAGS.log,"sequences", str(seq), "predictions"))
+      os.makedirs(os.path.join(FLAGS.log, "sequences", seq))
+      os.makedirs(os.path.join(FLAGS.log, "sequences", seq, "predictions"))
 
   except Exception as e:
     print(e)
@@ -89,7 +89,7 @@ if __name__ == '__main__':
 
   # does model folder exist?
   if os.path.isdir(FLAGS.model):
-    print("model folder exists! Using model from %s" % (FLAGS.model))
+    print(f"model folder exists! Using model from {FLAGS.model}")
   else:
     print("model folder doesnt exist! Can't infer...")
     quit()

@@ -114,7 +114,7 @@ class CRF(nn.Module):
     xyz = input[:, 1:4]
 
     # iteratively
-    for iter in range(self.iter):
+    for _ in range(self.iter):
       # message passing as locally connected layer
       locally_connected = self.local_conn_xyz(xyz, softmax, mask)
 

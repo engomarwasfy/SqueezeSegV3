@@ -55,7 +55,7 @@ class SemanticKitti(Dataset):
 
     # make sure directory exists
     if os.path.isdir(self.root):
-      print("Sequences folder exists! Using sequences from %s" % self.root)
+      print(f"Sequences folder exists! Using sequences from {self.root}")
     else:
       raise ValueError("Sequences folder doesn't exist! Exiting...")
 
@@ -80,7 +80,7 @@ class SemanticKitti(Dataset):
       # to string
       seq = '{0:02d}'.format(int(seq))
 
-      print("parsing seq {}".format(seq))
+      print(f"parsing seq {seq}")
 
       # get paths for each
       scan_path = os.path.join(self.root, seq, "velodyne")
@@ -104,8 +104,7 @@ class SemanticKitti(Dataset):
     self.scan_files.sort()
     self.label_files.sort()
 
-    print("Using {} scans from sequences {}".format(len(self.scan_files),
-                                                    self.sequences))
+    print(f"Using {len(self.scan_files)} scans from sequences {self.sequences}")
 
   def __getitem__(self, index):
     # get item in tensor shape
@@ -114,8 +113,6 @@ class SemanticKitti(Dataset):
     if self.gt:
       label_file = self.label_files[index]
 
-    # open a semantic laserscan
-    if self.gt:
       scan = SemLaserScan(self.color_map,
                           project=True,
                           H=self.sensor_img_H,
@@ -190,10 +187,7 @@ class SemanticKitti(Dataset):
     # make learning map a lookup table
     maxkey = 0
     for key, data in mapdict.items():
-      if isinstance(data, list):
-        nel = len(data)
-      else:
-        nel = 1
+      nel = len(data) if isinstance(data, list) else 1
       if key > maxkey:
         maxkey = key
     # +100 hack making lut bigger just in case there are unknown labels
@@ -309,22 +303,19 @@ class Parser():
       self.testiter = iter(self.testloader)
 
   def get_train_batch(self):
-    scans = self.trainiter.next()
-    return scans
+    return self.trainiter.next()
 
   def get_train_set(self):
     return self.trainloader
 
   def get_valid_batch(self):
-    scans = self.validiter.next()
-    return scans
+    return self.validiter.next()
 
   def get_valid_set(self):
     return self.validloader
 
   def get_test_batch(self):
-    scans = self.testiter.next()
-    return scans
+    return self.testiter.next()
 
   def get_test_set(self):
     return self.testloader
